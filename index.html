@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audio Discrimination Battery</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap');
+    :root {
+      --bg: #030712;
+      --panel: #0b1220;
+      --accent: #7dd3fc;
+      --accent-2: #a78bfa;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #1f2937;
+      --success: #34d399;
+      --error: #f87171;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Sora", "Noto Sans JP", system-ui, -apple-system, sans-serif;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(125, 211, 252, 0.12), transparent 32%),
+        radial-gradient(circle at 82% 12%, rgba(167, 139, 250, 0.14), transparent 30%),
+        linear-gradient(135deg, #020617, #0b1220 50%, #020617);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+    main {
+      width: min(1040px, 100%);
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+      display: none;
+    }
+    .card.active { display: block; }
+    h1, h2 { margin: 0 0 12px; letter-spacing: 0.01em; }
+    p { margin: 0 0 12px; line-height: 1.6; color: var(--muted); }
+    ul { padding-left: 20px; margin: 0 0 14px; color: var(--muted); }
+    li { margin-bottom: 6px; }
+    label { color: var(--text); font-weight: 600; display: block; margin-bottom: 6px; }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #050914;
+      color: var(--text);
+      font-size: 16px;
+    }
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 16px;
+      cursor: pointer;
+      color: #050914;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      font-weight: 700;
+      transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+    }
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 30px rgba(125, 211, 252, 0.25);
+    }
+    .button-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .stack { display: flex; flex-direction: column; gap: 12px; }
+    .tag {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(125, 211, 252, 0.14);
+      color: var(--text);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .status { color: var(--muted); font-size: 15px; }
+    .highlight { color: var(--text); font-weight: 600; }
+    .response-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 36px;
+      margin-top: 18px;
+    }
+    .response-buttons button {
+      width: 120px;
+      height: 120px;
+      font-size: 62px;
+      border-radius: 18px;
+      background: #0f172a;
+      color: var(--text);
+      border: 2px solid var(--border);
+    }
+    .feedback {
+      min-height: 24px;
+      margin-top: 12px;
+      font-weight: 700;
+    }
+    .feedback.correct { color: var(--success); }
+    .feedback.incorrect { color: var(--error); }
+    .order-list {
+      list-style: decimal-leading-zero;
+      padding-left: 22px;
+      margin: 10px 0 16px;
+      color: var(--text);
+    }
+    .order-list li { margin: 4px 0; }
+    .summary-list { display: grid; gap: 8px; margin: 12px 0 16px; }
+    .summary-item {
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0d1628;
+    }
+    .summary-item strong { color: var(--text); }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(125, 211, 252, 0.16);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    @media (max-width: 640px) {
+      body { padding: 12px; }
+      .response-buttons { gap: 16px; }
+      .response-buttons button { width: 96px; height: 96px; font-size: 48px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section id="setup" class="card active">
+      <div class="tag">Audio Discrimination Battery</div>
+      <h1>Listening tasks (4 types)</h1>
+      <p>Four different listening tasks will run on one page in a fixed order tied to the participant ID.</p>
+      <div class="stack">
+        <div>
+          <label for="subjectId">Participant ID</label>
+          <input id="subjectId" type="text" placeholder="e.g., S01 or student number">
+        </div>
+        <p class="status">The same ID gives the same order; a new ID creates a new order automatically.</p>
+        <button id="decideOrder">Set order and continue</button>
+      </div>
+    </section>
+
+    <section id="overview" class="card">
+      <div class="tag">Order confirmation</div>
+      <h2>Order for this session</h2>
+      <ol id="orderList" class="order-list"></ol>
+      <p class="status">The order is locked to the ID. Stay in the same browser until everything is finished.</p>
+      <div class="button-row">
+        <button id="beginBattery">Start first task</button>
+      </div>
+    </section>
+
+    <section id="instructions" class="card">
+      <div class="tag" id="taskTag"></div>
+      <h2 id="taskTitle">Task name</h2>
+      <p id="taskDetail" class="highlight"></p>
+      <p class="status">Each trial plays three sounds, and only the 1st or 3rd is different.</p>
+      <ul>
+        <li>After playback, choose the number (1 or 3) that sounds different.</li>
+        <li>Practice is 5 trials with feedback; after finishing, start the main task with Space or the button.</li>
+        <li>No feedback or progress indicator is shown during the main task. Conditions adjust automatically.</li>
+      </ul>
+      <div class="button-row">
+        <button id="startPractice">Start practice</button>
+        <button id="startTest" disabled>Start main task (Spacebar starts too)</button>
+      </div>
+      <p id="practiceStatus" class="status">Complete 5 practice trials, then start the main task with Space or the button.</p>
+    </section>
+
+    <section id="trial" class="card">
+      <div class="tag" id="sessionTag"></div>
+      <div class="pill" id="taskProgress"></div>
+      <h2 id="trialHeading">Make your choice</h2>
+      <p id="trialPrompt">Which sound is different? (1 or 3)</p>
+      <p id="playbackStatus" class="status">Playing audio...</p>
+      <div class="response-buttons">
+        <button id="choose1" disabled>1</button>
+        <button id="choose3" disabled>3</button>
+      </div>
+      <p id="feedback" class="feedback status"></p>
+    </section>
+
+    <section id="taskComplete" class="card">
+      <div class="tag">Task complete</div>
+      <h2 id="completeTitle">One task is finished</h2>
+      <p id="thresholdText" class="status"></p>
+      <p id="taskCompleteHint" class="status"></p>
+      <div class="button-row">
+        <button id="nextTaskButton">Next task</button>
+      </div>
+    </section>
+
+    <section id="complete" class="card">
+      <div class="tag">All done</div>
+      <h2>Thank you</h2>
+      <p>All four tasks are complete. You can download the CSV for all trials below.</p>
+      <div id="summaryList" class="summary-list"></div>
+      <p class="status">Data stored in this browser will disappear when you close this page. Save it if you need it.</p>
+      <div class="button-row">
+        <button id="downloadCsv">Download results</button>
+      </div>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
