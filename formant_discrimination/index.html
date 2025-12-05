@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Formant Discrimination</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --accent: #38bdf8;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #1f2937;
+      --success: #34d399;
+      --error: #f87171;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background: radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.08), transparent 30%),
+                  radial-gradient(circle at 80% 0%, rgba(139, 92, 246, 0.08), transparent 25%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+    main { width: min(960px, 100%); }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+      display: none;
+    }
+    .card.active { display: block; }
+    h1, h2 { margin: 0 0 12px; letter-spacing: 0.02em; }
+    p { margin: 0 0 12px; color: var(--muted); line-height: 1.6; }
+    .stack { display: flex; flex-direction: column; gap: 16px; }
+    label { color: var(--text); font-weight: 600; }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0b1220;
+      color: var(--text);
+      font-size: 16px;
+    }
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 16px;
+      cursor: pointer;
+      color: #0b1220;
+      background: var(--accent);
+      font-weight: 700;
+      transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 30px rgba(56, 189, 248, 0.35);
+    }
+    .button-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .response-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 20px;
+    }
+    .response-buttons button {
+      width: 120px;
+      height: 120px;
+      font-size: 64px;
+      border-radius: 18px;
+      background: #111827;
+      color: var(--text);
+      border: 2px solid var(--border);
+    }
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.18);
+      color: var(--text);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .feedback {
+      min-height: 24px;
+      margin-top: 12px;
+      font-weight: 600;
+    }
+    .feedback.correct { color: var(--success); }
+    .feedback.incorrect { color: var(--error); }
+    .status { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <section id="setup" class="card active">
+      <div class="tag">Listening Task 2</div>
+      <h1>Listening Task 2</h1>
+      <div class="stack">
+        <p>Please enter the participant ID before starting.</p>
+        <div>
+          <label for="subjectId">Participant ID</label>
+          <input id="subjectId" type="text" placeholder="e.g., S01">
+        </div>
+        <button id="toInstructions">Go to instructions</button>
+      </div>
+    </section>
+
+    <section id="instructions" class="card">
+      <div class="tag">Listening Task 2 | Instructions</div>
+      <h2>How this test works</h2>
+      <p>Each trial plays three sounds; one of them differs from the other two.</p>
+      <p>The odd sound is always in position 1 or 3. Choose which one is different.</p>
+      <p>Start with practice using widely spaced stimuli to get used to the procedure.</p>
+      <p>Practice is 5 trials with feedback. When finished, press Space or use the button to begin the main run.</p>
+      <div class="button-row">
+        <button id="startPractice">Start practice</button>
+        <button id="startTest" disabled>Start main run (Space also works)</button>
+      </div>
+      <p id="practiceStatus" class="status">After 5 practice trials, start the main run with Space or the button.</p>
+    </section>
+
+    <section id="trial" class="card">
+      <div class="tag" id="sessionTag">Listening Task 2</div>
+      <h2 id="trialHeading">Listening Task 2</h2>
+      <p id="trialPrompt">Which sound is different? (1 or 3)</p>
+      <p id="playbackStatus" class="status">Playing audio...</p>
+      <div class="response-buttons">
+        <button id="choose1" data-choice="1" disabled>1</button>
+        <button id="choose3" data-choice="3" disabled>3</button>
+      </div>
+      <p id="feedback" class="feedback status"></p>
+    </section>
+
+    <section id="complete" class="card">
+      <div class="tag">Complete</div>
+      <h2>Thank you</h2>
+      <p>The test is complete. You can download the results as CSV.</p>
+      <p id="thresholdText" class="status"></p>
+      <div class="stack">
+        <button id="downloadCsv">Download results</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="formant_discrimination.js"></script>
+</body>
+</html>
