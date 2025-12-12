@@ -133,7 +133,7 @@ function setSessionUi(mode) {
   } else {
     elements.sessionTag.textContent = `${DISPLAY_LABEL} | Main`;
     elements.trialHeading.textContent = `${DISPLAY_LABEL} - Main`;
-    elements.trialPrompt.textContent = 'Which sound is different? (1 or 3)';
+    elements.trialPrompt.textContent = 'Which of the sounds is different? (1 or 3)';
   }
   elements.playbackStatus.textContent = 'Playing audio...';
 }
