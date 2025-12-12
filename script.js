@@ -5,7 +5,7 @@ const TASKS = [
     displayLabel: 'Listening Task 3',
     folder: 'duration_discrimination',
     csvName: 'duration_discrimination',
-    displayDetail: 'Listening Task 3: One of the three sounds is different. Choose the sound you think is odd.',
+    displayDetail: 'Listening Task 3: Three sounds play in sequence. Only the 1st or 3rd differs from the others. Choose the one that sounds odd.',
     thresholdLabel: 'Estimated threshold (reversal mean)'
   },
   {
@@ -14,7 +14,7 @@ const TASKS = [
     displayLabel: 'Listening Task 2',
     folder: 'formant_discrimination',
     csvName: 'formant_discrimination',
-    displayDetail: 'Listening Task 2: One of the three sounds is different. Choose the sound you think is odd.',
+    displayDetail: 'Listening Task 2: Three sounds play in sequence. Only the 1st or 3rd differs from the others. Choose the one that sounds odd.',
     thresholdLabel: 'Estimated threshold (reversal mean)'
   },
   {
@@ -23,7 +23,7 @@ const TASKS = [
     displayLabel: 'Listening Task 1',
     folder: 'pitch_discrimination',
     csvName: 'pitch_discrimination',
-    displayDetail: 'Listening Task 1: One of the three sounds is different. Choose the sound you think is odd.',
+    displayDetail: 'Listening Task 1: Three sounds play in sequence. Only the 1st or 3rd differs from the others. Choose the one that sounds odd.',
     thresholdLabel: 'Estimated threshold (reversal mean)'
   },
   {
@@ -32,7 +32,7 @@ const TASKS = [
     displayLabel: 'Listening Task 4',
     folder: 'risetime_discrimination',
     csvName: 'risetime_discrimination',
-    displayDetail: 'Listening Task 4: One of the three sounds is different. Choose the sound you think is odd.',
+    displayDetail: 'Listening Task 4: Three sounds play in sequence. Only the 1st or 3rd differs from the others. Choose the one that sounds odd.',
     thresholdLabel: 'Estimated threshold (reversal mean)'
   }
 ];
@@ -324,7 +324,7 @@ function setSessionUi(mode) {
   } else {
     elements.sessionTag.textContent = `${prefix} | Test`;
     elements.trialHeading.textContent = `${currentTask.displayLabel} - Test`;
-    elements.trialPrompt.textContent = 'Which sound is different? (1 or 3)';
+    elements.trialPrompt.textContent = 'Which of the sounds is different? (1 or 3)';
     elements.taskProgress.style.display = 'none';
     elements.taskProgress.textContent = '';
   }
@@ -734,7 +734,8 @@ function downloadCsv() {
     lines.push(line);
   });
 
-  const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+  const bom = '\ufeff'; // UTF-8 BOM so spreadsheet apps keep Unicode intact
+  const blob = new Blob([bom, lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   const filenameId = subjectId ? subjectId : 'subject';
